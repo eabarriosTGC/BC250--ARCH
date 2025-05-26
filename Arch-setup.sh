@@ -20,6 +20,8 @@ pacman -Syu --noconfirm
 # 2. Establecer la variable de entorno RADV_DEBUG
 echo -n "Configurando la variable de entorno RADV_DEBUG=nocompute... "
 # Crear o añadir a /etc/environment. Usar /etc/profile.d/ para un enfoque más modular.
+# Línea modificada:
+mkdir -p /etc/environment.d/
 echo 'RADV_DEBUG=nocompute' > /etc/environment.d/99-bc250-radv.conf
 # Nota: /etc/environment se lee al inicio de sesión. /etc/environment.d/ es más flexible.
 # Para que el cambio tenga efecto inmediato en la sesión actual del script, también se podría exportar,
