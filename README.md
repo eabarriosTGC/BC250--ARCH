@@ -53,6 +53,10 @@ Si deseas colaborar:
 
     Envía pull requests con mejoras o correcciones, manteniendo el estilo y la compatibilidad para Arch y derivadas.
 
+
+Fuente principal para hacer posible esto:
+(https://github.com/mothenjoyer69/bc250-documentation)
+
 Licencia
 
 Este proyecto está licenciado bajo MIT.
