@@ -4,6 +4,8 @@ Este repositorio contiene scripts y documentación para configurar y optimizar e
 Requisitos Previos
 Activar repositorios Testing
 
+    sudo nano /etc/pacman.conf
+
 Debes activar los siguientes repositorios:
 
     core-testing
@@ -17,7 +19,7 @@ Instalación de dependencias esenciales
 
 Ejecuta el siguiente comando para instalar los paquetes necesarios:
 
-sudo pacman -S base-devel git meson ninja python-mako libdrm libxrandr libx11 libxext libxxf86vm libxcb wayland libva elfutils libomxil-bellagio libunwind vulkan-headers glslang fakeroot
+    sudo pacman -S base-devel git meson ninja python-mako libdrm libxrandr libx11 libxext libxxf86vm libxcb wayland libva elfutils libomxil-bellagio libunwind vulkan-headers glslang fakeroot
 
 Uso del Script
 
@@ -40,8 +42,6 @@ El script incluido en este repositorio realiza los siguientes pasos:
 Detalles Importantes
 
     Las distribuciones basadas en Arch Linux ya incluyen Mesa 25.++ en sus repositorios testing, facilitando la instalación sin necesidad de parches adicionales.
-
-    El script no instala Oberon Governor por defecto, ya que puede causar inestabilidad. Si quieres probarlo, habilita su instalación manualmente bajo tu propio riesgo.
 
     Todos los archivos necesarios y configuraciones están incluidos en este repositorio para que puedas personalizar según tus necesidades.
 
