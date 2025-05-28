@@ -22,34 +22,34 @@ echo -n "Configurando la variable de entorno RADV_DEBUG=nocompute... "
 # Crear o añadir a /etc/environment. Usar /etc/profile.d/ para un enfoque más modular.
 # Línea modificada:
 mkdir -p /etc/environment.d/
-echo 'RADV_DEBUG=nocompute' > /etc/environment.d/99-bc250-radv.conf
+echo 'RADV_DEBUG=nocompute' > /etc/environment.d
 # Nota: /etc/environment se lee al inicio de sesión. /etc/environment.d/ es más flexible.
 # Para que el cambio tenga efecto inmediato en la sesión actual del script, también se podría exportar,
 # pero para el sistema en general, el archivo de configuración es lo correcto.
 echo "OK. Necesitarás reiniciar o cerrar y volver a iniciar sesión para que este cambio global tenga efecto."
 
-# 3. Instalar el gobernador de la GPU de Segfault (Oberon Governor) - DESHABILITADO POR DEFECTO
+# 3. Instalar el gobernador de la GPU de Segfault (Oberon Governor) 
 # ============================================================================================
-# INICIO DE SECCIÓN OBERON GOVERNOR (DESHABILITADA)
+# INICIO DE SECCIÓN OBERON GOVERNOR 
 # ============================================================================================
 # echo "Instalando el gobernador de la GPU (Oberon Governor)... "
 # # Dependencias para Arch (g++ es parte de gcc, libdrm-devel es libdrm)
 # # Asegurarse de que mkinitcpio está instalado
 # # Añadir git, cmake, make, gcc SOLO si se va a instalar Oberon. libdrm y mkinitcpio son útiles de todas formas.
-# pacman -S --needed --noconfirm libdrm mkinitcpio # git cmake make gcc
+pacman -S --needed --noconfirm libdrm mkinitcpio # git cmake make gcc
 #
 # # Clonar, compilar e instalar
-# TEMP_DIR_OBERON=$(mktemp -d -t oberon-XXXXXX)
-# trap 'rm -rf -- "$TEMP_DIR_OBERON"' EXIT # Limpiar el directorio temporal al salir
+TEMP_DIR_OBERON=$(mktemp -d -t oberon-XXXXXX)
+trap 'rm -rf -- "$TEMP_DIR_OBERON"' EXIT # Limpiar el directorio temporal al salir
 #
-# git clone https://gitlab.com/mothenjoyer69/oberon-governor.git "$TEMP_DIR_OBERON/oberon-governor"
-# cd "$TEMP_DIR_OBERON/oberon-governor"
-# cmake . && make && make install
-# cd / # Volver al directorio raíz o a un lugar seguro
+git clone https://gitlab.com/mothenjoyer69/oberon-governor.git "$TEMP_DIR_OBERON/oberon-governor"
+cd "$TEMP_DIR_OBERON/oberon-governor"
+cmake . && make && make install
+cd / # Volver al directorio raíz o a un lugar seguro
 #
 # # Habilitar el servicio del gobernador
-# systemctl enable oberon-governor.service
-# echo "Gobernador de GPU instalado y servicio habilitado. ¡ÚSALO BAJO TU PROPIO RIESGO!"
+systemctl enable oberon-governor.service
+echo "Gobernador de GPU instalado y servicio habilitado. ¡ÚSALO BAJO TU PROPIO RIESGO!"
 # ============================================================================================
 # FIN DE SECCIÓN OBERON GOVERNOR (DESHABILITADA)
 # ============================================================================================
@@ -97,4 +97,4 @@ echo "7. `vulkaninfo --summary | grep driverName` (debería ser 'radv')."
 echo "---------------------------------------------------------------------"
 echo "Se recomienda reiniciar el sistema para que todos los cambios surtan efecto."
 echo "El sistema se reiniciará en 30 segundos. Presiona Ctrl-C para cancelar el reinicio."
-sleep 30 && systemctl reboot
+sleep 15 && systemctl reboot
