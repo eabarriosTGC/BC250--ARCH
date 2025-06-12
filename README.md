@@ -42,7 +42,7 @@
 
 ---
 
-
+![Image alt](https://github.com/eabarriosTGC/BC250--ARCH/blob/17e3dc21465d43af5f1cf50b777fd111dba8e534/Captura%20desde%202025-06-12%2008-59-12.png)
 
 ## 📚 Fuente principal
 
