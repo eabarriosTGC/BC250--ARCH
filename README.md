@@ -1,24 +1,27 @@
 # Configuración y Optimización para la Placa **AMD BC-250** en **Arch Linux**
 
 > Específicamente probado en Arch con entorno de escritorio **GNOME**.
+## 🧠 ¿Cómo funciona este script? La Diferencia Técnica
 
-🧠 ¿Cómo funciona este script? La Diferencia Técnica
+Quizás hayas visto otros scripts para la BC-250, como el popular para Fedora. Es importante entender la diferencia técnica en el enfoque, ya que esto resalta una de las ventajas de usar una distribución *rolling release* como Arch Linux.
 
-Quizás hayas visto otros scripts para la BC-250, como el popular para Fedora. Es importante entender la diferencia técnica en el enfoque, ya que esto resalta una de las ventajas de usar una distribución rolling release como Arch Linux.
-El Desafío: El Soporte en Mesa
+### El Desafío: El Soporte en Mesa
 
-El principal obstáculo para hacer funcionar la GPU de la BC-250 es que su identificador de hardware (PCI ID) no era reconocido por las versiones antiguas de Mesa, la librería gráfica esencial en Linux.
+El principal obstáculo para hacer funcionar la GPU de la BC-250 es que su identificador de hardware (PCI ID) no era reconocido por las versiones antiguas de **Mesa**, la librería gráfica esencial en Linux.
 
-Para solucionarlo, la comunidad creó un parche que simplemente añade el ID de la BC-250 a la lista de GPUs soportadas por los drivers amdgpu (RADV para Vulkan y Radeonsi para OpenGL). Este parche fue oficialmente integrado en el código fuente de Mesa a partir de la versión 25.1.
-El Enfoque de Fedora vs. El Enfoque de Arch Linux
+Para solucionarlo, la comunidad creó un **parche** que simplemente añade el ID de la BC-250 a la lista de GPUs soportadas por los drivers `amdgpu` (RADV para Vulkan y Radeonsi para OpenGL). Este parche fue oficialmente integrado en el código fuente de **Mesa a partir de la versión 25.1**.
+
+### El Enfoque de Fedora vs. El Enfoque de Arch Linux
 
 Aquí radica la diferencia clave:
-Característica	Enfoque Fedora (usando COPR)	Enfoque Arch Linux (este script)
-Fuente de Mesa	Un repositorio de terceros (COPR) que contiene una versión de Mesa parcheada manualmente.	El repositorio oficial [testing] de Arch Linux.
-Naturaleza del Soporte	Externo: Se instala una versión de Mesa modificada por la comunidad, ya que la versión oficial de Fedora es anterior a la 25.1.	Nativo (Upstream): Se instala la versión oficial de Mesa 25.1 (o superior), la cual ya incluye el soporte para la BC-250 "de fábrica".
-Analogía	Es como darle al portero una invitación escrita a mano para que te deje entrar.	Tu nombre ya estaba impreso en la lista oficial de invitados.
 
-En resumen, este script para Arch Linux no necesita aplicar parches externos. Simplemente habilita el repositorio [testing] para acceder a la última versión oficial de Mesa, que ya contiene el soporte necesario. Esto resulta en una instalación más limpia, estándar y sostenible a largo plazo. Una vez que Mesa 25.1 llegue a los repositorios estables de Arch, ni siquiera será necesario el repositorio [testing].
+| Característica | Enfoque Fedora (usando COPR) | Enfoque Arch Linux (este script) |
+| :--- | :--- | :--- |
+| **Fuente de Mesa** | Un repositorio de terceros (COPR) que contiene una versión de Mesa **parcheada manualmente**. | El repositorio oficial `[testing]` de Arch Linux. |
+| **Naturaleza del Soporte** | **Externo:** Se instala una versión de Mesa modificada por la comunidad, ya que la versión oficial de Fedora es anterior a la 25.1. | **Nativo (Upstream):** Se instala la versión oficial de Mesa 25.1 (o superior), la cual ya incluye el soporte para la BC-250 "de fábrica". |
+| **Analogía** | Es como darle al portero una invitación escrita a mano para que te deje entrar. | Tu nombre ya estaba impreso en la lista oficial de invitados. |
+
+En resumen, este script para Arch Linux **no necesita aplicar parches externos**. Simplemente habilita el repositorio `[testing]` para acceder a la última versión oficial de Mesa, que ya contiene el soporte necesario. Esto resulta en una instalación más limpia, estándar y sostenible a largo plazo. Una vez que Mesa 25.1 llegue a los repositorios estables de Arch, ni siquiera será necesario el repositorio `[testing]`.
 
 
 ---
