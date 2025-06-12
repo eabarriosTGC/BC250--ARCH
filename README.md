@@ -43,6 +43,7 @@
 ---
 
 ![Image alt](https://github.com/eabarriosTGC/BC250--ARCH/blob/17e3dc21465d43af5f1cf50b777fd111dba8e534/Captura%20desde%202025-06-12%2008-59-12.png)
+![Image alt](https://github.com/eabarriosTGC/BC250--ARCH/blob/eadb312d559b32ba5732df1996ac99d7360f61c9/Captura%20desde%202025-06-12%2003-03-40.png)
 
 ## 📚 Fuente principal
 
