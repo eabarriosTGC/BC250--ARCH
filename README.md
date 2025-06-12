@@ -51,7 +51,7 @@ En resumen, este script para Arch Linux **no necesita aplicar parches externos**
 3. Da permisos de ejecución al script de configuración:
 
    ```bash
-   cd /BC250--ARCH
+   cd BC250--ARCH/
    sudo chmod +x ./Arch-setup.sh
    ```
 
