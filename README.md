@@ -28,13 +28,14 @@
 3. Da permisos de ejecución al script de configuración:
 
    ```bash
-   sudo chmod +x ./BC250--ARCH/Arch-setup.sh
+   cd /BC250--ARCH
+   sudo chmod +x ./Arch-setup.sh
    ```
 
 4. Ejecuta el script:
 
    ```bash
-   sudo ./BC250--ARCH/Arch-setup.sh
+   sudo ./Arch-setup.sh
    ```
 
 5. Confirma la instalación y ¡listo!
