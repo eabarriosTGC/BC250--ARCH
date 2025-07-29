@@ -28,7 +28,7 @@ En resumen, este script para Arch Linux **no necesita aplicar parches externos**
 
 ## ⚠️ Aviso Importante
 
-* Se recomienda usar la **versión LTS del kernel**, ya que las versiones más recientes (incluyendo **Zen**) presentan problemas como **congelamiento de pantalla**.
+* Se recomienda usar la **versión LTS del kernel**, ya que las versiones más recientes (incluyendo **Zen**) presentan problemas como **congelamiento de pantalla**.(actualmente la version 6.15.8 del kernel no tiene problemas, tanto la opcion por defecto, como el kernel zen)
 * Durante la instalación de Arch, **ELEGIR LOS CONTROLADORES GRAFICOS OPEN SOURCE DE AMD `**.
 * Durante la instalación de Arch, **habilita el repositorio `multilib y testing`**.
 
