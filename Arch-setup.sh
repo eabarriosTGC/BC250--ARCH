@@ -41,42 +41,25 @@ function check_root() {
 
 function initial_warnings() {
     print_header "Configuración para AMD BC-250 en Arch Linux"
-    print_warning "Este script está diseñado para Arch Linux y asume una instalación limpia."
+    print_warning "Este script está optimizado para la BC-250 con kernels >= 6.15 y Mesa >= 25.1 (ahora en repos estables)."
     echo "Se realizarán los siguientes cambios:"
-    echo "  - Se verificará y habilitará el repositorio 'testing' si es necesario."
     echo "  - Se instalará el grupo 'base-devel' si no está presente."
-    echo "  - Se actualizará el sistema (requerirá tu confirmación)."
     echo "  - Se configurará RADV_DEBUG=nocompute."
     echo "  - Se configurarán los módulos del kernel 'amdgpu' y 'nct6683'."
     echo "  - Se regenerará el initramfs."
-    print_warning "Se intentará instalar el gobernador de GPU Oberon (experimental)."
-    echo "Presiona Enter para continuar o Ctrl+C para cancelar."
+    echo "  - Se instalará el gobernador de GPU Oberon (experimental)."
+    print_warning "NOTA: Se asume que tu sistema ya está actualizado (pacman -Syu). Si no lo has hecho recientemente, ¡hazlo ahora!"
+    print_warning "Presiona Enter para continuar o Ctrl+C para cancelar."
     read -r
 }
 
 function check_prerequisites() {
     print_header "Verificando prerrequisitos"
 
-    # 1. Comprobar si 'testing' está habilitado en pacman.conf
-    if ! grep -q "^\s*\[testing\]" /etc/pacman.conf; then
-        print_warning "El repositorio '[testing]' no parece estar habilitado en /etc/pacman.conf."
-        read -p "¿Deseas habilitarlo ahora? (Esto es necesario para Mesa >= 25.1) [S/n]: " choice
-        case "$choice" in
-            n|N) die "El repositorio 'testing' es requerido. Saliendo." ;;
-            *)
-                echo -e "\n[testing]\nInclude = /etc/pacman.d/mirrorlist" >> /etc/pacman.conf
-                print_success "Repositorio '[testing]' añadido a /etc/pacman.conf."
-                ;;
-        esac
-    else
-        print_success "El repositorio '[testing]' ya está habilitado."
-    fi
-
-    # 2. Comprobar si 'base-devel' está instalado
-    # Usamos pacman -Qg para verificar el grupo, es más fiable que -Qk.
+    # 1. Comprobar si 'base-devel' está instalado
     if ! pacman -Qg base-devel &>/dev/null; then
         print_warning "El grupo de paquetes 'base-devel' no está instalado."
-        read -p "¿Deseas instalarlo ahora? (Requerido para compilar) [S/n]: " choice
+        read -p "¿Deseas instalarlo ahora? (Requerido para compilar Oberon) [S/n]: " choice
         case "$choice" in
             n|N) die "El grupo 'base-devel' es requerido para este script. Saliendo." ;;
             *)
@@ -87,29 +70,26 @@ function check_prerequisites() {
     else
         print_success "El grupo 'base-devel' ya está instalado."
     fi
+    
+    # Mesa >= 25.1 ya está en los repos estables de Arch, no es necesario checkear 'testing'.
+    print_success "Mesa >= 25.1 se espera que ya esté instalado desde los repositorios oficiales."
 }
 
-function system_update_and_install_deps() {
-    print_header "Actualizando sistema e instalando dependencias"
-    echo "Primero, se actualizará la base de datos de pacman y el sistema completo."
-    echo "Se te pedirá confirmación para proceder con la actualización."
-    pacman -Syu
-
-    # Paquetes necesarios para el funcionamiento básico del script y la tarjeta
+function install_base_deps() {
+    print_header "Instalando dependencias base necesarias"
+    # No se hace un pacman -Syu completo aquí, se espera que el usuario lo haga.
+    # Solo instalamos los paquetes que puedan faltar para la funcionalidad básica.
     local packages=(
         "libdrm"
         "mkinitcpio"
         "lm_sensors"
-        "mesa"
-        "vulkan-radeon"
-        "libva-mesa-driver"
-        "mesa-vdpau"
-        "glxinfo"
-        "vulkan-tools"
+        # mesa, vulkan-radeon, libva-mesa-driver, mesa-vdpau, glxinfo, vulkan-tools
+        # se asume que ya están presentes o se instalarán con gnome/kde o una actualización normal
     )
     
     echo "Instalando paquetes base necesarios: ${packages[*]}"
     pacman -S --needed --noconfirm "${packages[@]}"
+    print_success "Dependencias base instaladas."
 }
 
 function configure_radv() {
@@ -197,7 +177,7 @@ function final_summary() {
     print_header "¡Configuración completada!"
     echo "---------------------------------------------------------------------"
     echo "RESUMEN DE CAMBIOS:"
-    echo " ✓ Sistema actualizado y dependencias instaladas."
+    echo " ✓ Dependencias base y 'base-devel' instaladas."
     echo " ✓ RADV_DEBUG=nocompute configurado."
     echo " ✓ Opciones de kernel para amdgpu y nct6683 aplicadas."
     echo " ✓ Initramfs regenerado."
@@ -234,7 +214,7 @@ function main() {
     check_root
     initial_warnings
     check_prerequisites
-    system_update_and_install_deps
+    install_base_deps # Solo instala dependencias base, no hace un pacman -Syu completo
     configure_radv
     configure_modules
     
