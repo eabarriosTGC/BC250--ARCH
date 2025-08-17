@@ -49,6 +49,7 @@ En resumen, este script para Arch Linux **no necesita aplicar parches externos**
    ```
 
 3. Da permisos de ejecución al script de configuración:
+   
    Arch:
    ```bash
    cd BC250--ARCH/
@@ -60,6 +61,7 @@ En resumen, este script para Arch Linux **no necesita aplicar parches externos**
    sudo chmod +x ./bc520-manjaro.sh
    ```
 4. Ejecuta el script:
+
    Arch:
    ```bash
    sudo ./Arch-setup.sh
