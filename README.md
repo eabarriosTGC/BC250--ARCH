@@ -1,4 +1,4 @@
-# Configuración y Optimización para la Placa **AMD BC-250** en **Arch Linux**
+# Configuración y Optimización para la Placa **AMD BC-250** en **Arch Linux y MANJARO**
 
 > Específicamente probado en Arch con entorno de escritorio **GNOME**.
 ## 🧠 ¿Cómo funciona este script? La Diferencia Técnica
@@ -49,18 +49,26 @@ En resumen, este script para Arch Linux **no necesita aplicar parches externos**
    ```
 
 3. Da permisos de ejecución al script de configuración:
-
+   Arch:
    ```bash
    cd BC250--ARCH/
    sudo chmod +x ./Arch-setup.sh
    ```
-
+   Manjaro:
+```bash
+   cd BC250--ARCH/
+   sudo chmod +x ./bc520-manjaro.sh
+   ```
 4. Ejecuta el script:
-
+   Arch:
    ```bash
    sudo ./Arch-setup.sh
    ```
 
+   Manjaro:
+ ```bash
+   sudo ./bc520-manjaro.sh
+   ```
 5. Confirma la instalación y ¡listo!
 
 ---
