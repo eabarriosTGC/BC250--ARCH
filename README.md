@@ -1,6 +1,6 @@
 # Configuración y Optimización para la Placa **AMD BC-250** en **Arch Linux y MANJARO**
 
-> Específicamente probado en Arch con entorno de escritorio **GNOME**.
+> Específicamente probado en Arch y Manjaro con entorno de escritorio **GNOME**.
 ## 🧠 ¿Cómo funciona este script? La Diferencia Técnica
 
 Quizás hayas visto otros scripts para la BC-250, como el popular para Fedora. Es importante entender la diferencia técnica en el enfoque, ya que esto resalta una de las ventajas de usar una distribución *rolling release* como Arch Linux.
