@@ -1,92 +1,76 @@
-# Configuración y Optimización para la Placa **AMD BC-250** en **Arch Linux y MANJARO**
+# AMD BC-250 Ultimate Setup para Arch Linux & Manjaro
 
-> Específicamente probado en Arch y Manjaro con entorno de escritorio **GNOME**.
-## 🧠 ¿Cómo funciona este script? La Diferencia Técnica
+> **Estado:** Activo y Actualizado (Diciembre 2025)  
+> **Soporta:** Arch Linux, Manjaro, EndeavourOS.
 
-Quizás hayas visto otros scripts para la BC-250, como el popular para Fedora. Es importante entender la diferencia técnica en el enfoque, ya que esto resalta una de las ventajas de usar una distribución *rolling release* como Arch Linux.
-
-### El Desafío: El Soporte en Mesa
-
-El principal obstáculo para hacer funcionar la GPU de la BC-250 es que su identificador de hardware (PCI ID) no era reconocido por las versiones antiguas de **Mesa**, la librería gráfica esencial en Linux.
-
-Para solucionarlo, la comunidad creó un **parche** que simplemente añade el ID de la BC-250 a la lista de GPUs soportadas por los drivers `amdgpu` (RADV para Vulkan y Radeonsi para OpenGL). Este parche fue oficialmente integrado en el código fuente de **Mesa a partir de la versión 25.1**.
-
-### El Enfoque de Fedora vs. El Enfoque de Arch Linux
-
-Aquí radica la diferencia clave:
-
-| Característica | Enfoque Fedora (usando COPR) | Enfoque Arch Linux (este script) |
-| :--- | :--- | :--- |
-| **Fuente de Mesa** | Un repositorio de terceros (COPR) que contiene una versión de Mesa **parcheada manualmente**. | El repositorio oficial `[testing]` de Arch Linux. |
-| **Naturaleza del Soporte** | **Externo:** Se instala una versión de Mesa modificada por la comunidad, ya que la versión oficial de Fedora es anterior a la 25.1. | **Nativo (Upstream):** Se instala la versión oficial de Mesa 25.1 (o superior), la cual ya incluye el soporte para la BC-250 "de fábrica". |
-| **Analogía** | Es como darle al portero una invitación escrita a mano para que te deje entrar. | Tu nombre ya estaba impreso en la lista oficial de invitados. |
-
-En resumen, este script para Arch Linux **no necesita aplicar parches externos**. Simplemente habilita el repositorio `[testing]` para acceder a la última versión oficial de Mesa, que ya contiene el soporte necesario. Esto resulta en una instalación más limpia, estándar y sostenible a largo plazo. Una vez que Mesa 25.1 llegue a los repositorios estables de Arch, ni siquiera será necesario el repositorio `[testing]`.
-
+Script automatizado para compilar e instalar un entorno estable para la placa **AMD BC-250 (Cyan Skillfish)**, solucionando los problemas de pantalla negra, congelamientos y falta de aceleración gráfica en kernels recientes.
 
 ---
 
-## ⚠️ Aviso Importante
+## 🛑 El Problema (¿Por qué existe este repo?)
 
-* Se recomienda usar la **versión LTS del kernel**, ya que las versiones más recientes (incluyendo **Zen**) presentan problemas como **congelamiento de pantalla**.(actualmente la version 6.15.8 del kernel no tiene problemas, tanto la opcion por defecto, como el kernel zen)
-* Durante la instalación de Arch, **ELEGIR LOS CONTROLADORES GRAFICOS OPEN SOURCE DE AMD `**.
-* Durante la instalación de Arch, **habilita el repositorio `multilib y testing`**.
+Si has intentado usar Arch Linux recientemente en la BC-250, habrás notado:
+1.  **Pantalla negra al arrancar:** Los kernels recientes (6.12+, 6.17+) tienen regresiones en el módulo `amdgpu` para este hardware exótico.
+2.  **Sin aceleración:** `glxinfo` muestra `llvmpipe` en lugar de la GPU RDNA2.
+3.  **Crash en actualizaciones:** Un `pacman -Syu` puede romper el sistema inesperadamente.
+
+Los métodos antiguos (habilitar repos `testing` o esperar a Mesa upstream) **ya no son seguros** debido a la inestabilidad del soporte "bleeding edge" para esta placa minera convertida.
+
+## 🧠 La Solución Técnica
+
+A diferencia de otros scripts que confían en repositorios externos o versiones inestables, este repositorio adopta un enfoque de **"Estabilidad Congelada"**:
+
+1.  **Kernel LTS Custom:** Compilamos una versión parcheada del Kernel LTS (6.6.x) específicamente configurada para inicializar correctamente el `amdgpu` de la Cyan Skillfish.
+2.  **Mesa Parcheado:** Compilamos la última versión estable de Mesa (24.3.x) con el parche `navi10-range` aplicado, asegurando soporte Vulkan y OpenGL completo.
+3.  **Governor Fix:** Instalamos un servicio systemd nativo que fuerza el perfil de energía correcto al inicio, evitando el bajo rendimiento o crashes por gestión de energía.
+4.  **Protección contra Updates:** El script ofrece bloquear estos paquetes en `pacman.conf` para que Arch pueda actualizarse sin romper tus drivers gráficos.
 
 ---
 
-## 🚀 Pasos de Instalación
+## 🚀 Instalación
 
-1. Instala `git` si no lo tienes:
+### Requisitos Previos
+*   Una instalación limpia (o funcional) de Arch Linux o Manjaro.
+*   Conexión a internet.
+*   **Paciencia:** Compilar el Kernel y Mesa puede tardar entre **40 minutos y 2 horas** dependiendo de tu CPU, pero es un proceso único que garantiza estabilidad.
 
-   ```bash
-   sudo pacman -S git
-   ```
+### Pasos
 
-2. Clona este repositorio:
+1.  **Instalar Git:**
+    ```bash
+    sudo pacman -S git base-devel
+    ```
 
-   ```bash
-   git clone https://github.com/eabarriosTGC/BC250--ARCH
-   ```
+2.  **Clonar el repositorio:**
+    ```bash
+    git clone https://github.com/eabarriosTGC/BC250--ARCH.git
+    cd BC250--ARCH
+    ```
 
-3. Da permisos de ejecución al script de configuración:
-   
-   Arch:
-   ```bash
-   cd BC250--ARCH/
-   sudo chmod +x ./Arch-setup.sh
-   ```
-   Manjaro:
+3.  **Dar permisos y ejecutar:**
+    ```bash
+    chmod +x install.sh
+    ./install.sh
+    ```
+
+4.  **Seguir las instrucciones en pantalla:**
+    *   Se recomienda decir **SÍ (y)** a todas las opciones (Kernel, Mesa y Bloqueo de paquetes).
+
+5.  **Reiniciar:**
+    *   Al reiniciar, asegúrate de seleccionar **"Linux LTS AMD BC-250"** en el menú de GRUB/Systemd-boot.
+
+---
+
+## 📊 Verificación
+
+Una vez reiniciado, ejecuta estos comandos para verificar que todo funciona:
+
 ```bash
-   cd BC250--ARCH/
-   sudo chmod +x ./bc520-manjaro.sh
-   ```
-4. Ejecuta el script:
+# Debe mostrar kernel 6.6.x-bc250
+uname -r 
 
-   Arch:
-   ```bash
-   sudo ./Arch-setup.sh
-   ```
+# Debe mostrar "AMD Radeon Graphics" o "Cyan Skillfish" (NO llvmpipe)
+glxinfo | grep "OpenGL renderer"
 
-   Manjaro:
- ```bash
-   sudo ./bc520-manjaro.sh
-   ```
-5. Confirma la instalación y ¡listo!
-
----
-
-![Image alt](https://github.com/eabarriosTGC/BC250--ARCH/blob/17e3dc21465d43af5f1cf50b777fd111dba8e534/Captura%20desde%202025-06-12%2008-59-12.png)
-![Image alt](https://github.com/eabarriosTGC/BC250--ARCH/blob/eadb312d559b32ba5732df1996ac99d7360f61c9/Captura%20desde%202025-06-12%2003-03-40.png)
-
-## 📚 Fuente principal
-
-Gran parte de esta configuración se basa en el siguiente repositorio:
-🔗 [mothenjoyer69/bc250-documentation](https://github.com/mothenjoyer69/bc250-documentation)
-
----
-
-## 📄 Licencia
-
-Este proyecto está licenciado bajo la **MIT License**.
-
----
+# Debe mostrar tu GPU correctamente
+vulkaninfo | grep deviceName
