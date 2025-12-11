@@ -1,0 +1,95 @@
+# Maintainer: Tu Nombre
+pkgbase=mesa-amd-bc250
+pkgname=(mesa-amd-bc250 vulkan-radeon-amd-bc250)
+pkgver=24.3.1
+pkgrel=1
+epoch=1
+pkgdesc="Mesa 24.3.x drivers with fixes for AMD BC-250 (Cyan Skillfish)"
+url="https://www.mesa3d.org/"
+arch=(x86_64)
+license=('MIT' 'BSD' 'SGI-B-2.0')
+makedepends=(
+  clang cmake elfutils expat gcc-libs glibc glslang libclc libdrm libelf
+  libglvnd libva libvdpau libx11 libxcb libxext libxfixes libxml2 libxrandr
+  libxshmfence libxxf86vm llvm llvm-libs lm_sensors meson python-mako
+  python-packaging python-ply python-yaml rust rust-bindgen spirv-llvm-translator
+  spirv-tools systemd-libs vulkan-icd-loader wayland wayland-protocols
+  xcb-util-keysyms zlib zstd valgrind directx-headers
+)
+options=('!lto') # LTO sigue dando problemas en builds custom
+source=(
+  "https://mesa.freedesktop.org/archive/mesa-${pkgver}.tar.xz"
+  "https://mesa.freedesktop.org/archive/mesa-${pkgver}.tar.xz.sig"
+  "0001-adjust-navi10-range.patch" # ¡Asegúrate de tener este archivo!
+)
+sha256sums=('SKIP' 'SKIP' 'SKIP')
+validpgpkeys=('8703B6700E7EE06D7A39B8D6EDAE37B02CEB490D') # Emil Velikov y otros keys de mesa
+
+prepare() {
+  cd mesa-$pkgver
+  # Aplicar el parche crítico para BC-250
+  patch -p1 -i ../0001-adjust-navi10-range.patch
+
+  # Version custom
+  echo "$pkgver-bc250" > VERSION
+}
+
+build() {
+  local meson_options=(
+    -D b_ndebug=true
+    -D gallium-drivers=radeonsi,zink,swrast,virgl
+    -D vulkan-drivers=amd,swrast
+    -D vulkan-layers=device-select,overlay
+    -D platforms=x11,wayland
+    -D video-codecs=vc1dec,h264dec,h264enc,h265dec,h265enc,av1dec,av1enc
+    -D valgrind=enabled
+    -D gallium-rusticl=true
+    -D llvm=enabled
+    -D shared-glapi=enabled
+    -D gles1=disabled
+    -D gles2=enabled
+    -D opengl=true
+    -D glx=dri
+    -D egl=enabled
+    -D gbm=enabled
+  )
+
+  arch-meson mesa-$pkgver build "${meson_options[@]}"
+  meson compile -C build
+}
+
+package_mesa-amd-bc250() {
+  depends=(libdrm libelf libglvnd libx11 libxcb libxshmfence wayland zstd llvm-libs)
+  provides=(mesa opengl-driver)
+  conflicts=(mesa)
+  replaces=(mesa)
+
+  meson install -C build --destdir "$pkgdir"
+
+  # Limpieza y organización manual (simplificada para Arch)
+  cd "$pkgdir"
+
+  # Mover drivers Vulkan a su propio paquete
+  mkdir -p ../vulkan-pkg/usr/lib
+  mkdir -p ../vulkan-pkg/usr/share/vulkan/icd.d
+  mv usr/lib/libvulkan_radeon.so ../vulkan-pkg/usr/lib/
+  mv usr/share/vulkan/icd.d/radeon_icd*.json ../vulkan-pkg/usr/share/vulkan/icd.d/
+
+  install -Dm644 mesa-$pkgver/docs/license.rst -t "$pkgdir/usr/share/licenses/$pkgname"
+}
+
+package_vulkan-radeon-amd-bc250() {
+  pkgdesc="Vulkan RADV driver for AMD BC-250"
+  depends=(mesa-amd-bc250 vulkan-icd-loader)
+  provides=(vulkan-radeon vulkan-driver)
+  conflicts=(vulkan-radeon)
+
+  install -d "$pkgdir/usr/lib"
+  install -d "$pkgdir/usr/share/vulkan/icd.d"
+
+  # Recuperar los archivos movidos en el paso anterior
+  mv ../vulkan-pkg/usr/lib/* "$pkgdir/usr/lib/"
+  mv ../vulkan-pkg/usr/share/vulkan/icd.d/* "$pkgdir/usr/share/vulkan/icd.d/"
+
+  install -Dm644 mesa-$pkgver/docs/license.rst -t "$pkgdir/usr/share/licenses/$pkgname"
+}
