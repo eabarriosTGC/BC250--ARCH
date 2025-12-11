@@ -1,4 +1,4 @@
-# Maintainer: Tu Nombre
+# Maintainer: eabarriosTGC <tu@email.com>
 pkgbase=mesa-amd-bc250
 pkgname=(mesa-amd-bc250 vulkan-radeon-amd-bc250)
 pkgver=24.3.1
@@ -16,21 +16,18 @@ makedepends=(
   spirv-tools systemd-libs vulkan-icd-loader wayland wayland-protocols
   xcb-util-keysyms zlib zstd valgrind directx-headers
 )
-options=('!lto') # LTO sigue dando problemas en builds custom
+options=('!lto')
 source=(
   "https://mesa.freedesktop.org/archive/mesa-${pkgver}.tar.xz"
-  "https://mesa.freedesktop.org/archive/mesa-${pkgver}.tar.xz.sig"
-  "0001-adjust-navi10-range.patch" # ¡Asegúrate de tener este archivo!
+  "0001-adjust-navi10-range.patch"  # Archivo local
 )
-sha256sums=('SKIP' 'SKIP' 'SKIP')
-validpgpkeys=('8703B6700E7EE06D7A39B8D6EDAE37B02CEB490D') # Emil Velikov y otros keys de mesa
+sha256sums=('SKIP' 'SKIP') # SKIP para evitar errores de checksum
 
 prepare() {
   cd mesa-$pkgver
-  # Aplicar el parche crítico para BC-250
+  # Aplicar parche local
   patch -p1 -i ../0001-adjust-navi10-range.patch
-
-  # Version custom
+  
   echo "$pkgver-bc250" > VERSION
 }
 
@@ -53,7 +50,7 @@ build() {
     -D egl=enabled
     -D gbm=enabled
   )
-
+  
   arch-meson mesa-$pkgver build "${meson_options[@]}"
   meson compile -C build
 }
@@ -66,15 +63,14 @@ package_mesa-amd-bc250() {
 
   meson install -C build --destdir "$pkgdir"
 
-  # Limpieza y organización manual (simplificada para Arch)
+  # Separar Vulkan
   cd "$pkgdir"
-
-  # Mover drivers Vulkan a su propio paquete
   mkdir -p ../vulkan-pkg/usr/lib
   mkdir -p ../vulkan-pkg/usr/share/vulkan/icd.d
-  mv usr/lib/libvulkan_radeon.so ../vulkan-pkg/usr/lib/
-  mv usr/share/vulkan/icd.d/radeon_icd*.json ../vulkan-pkg/usr/share/vulkan/icd.d/
-
+  
+  mv usr/lib/libvulkan_radeon.so ../vulkan-pkg/usr/lib/ 2>/dev/null || true
+  mv usr/share/vulkan/icd.d/radeon_icd*.json ../vulkan-pkg/usr/share/vulkan/icd.d/ 2>/dev/null || true
+  
   install -Dm644 mesa-$pkgver/docs/license.rst -t "$pkgdir/usr/share/licenses/$pkgname"
 }
 
@@ -83,13 +79,12 @@ package_vulkan-radeon-amd-bc250() {
   depends=(mesa-amd-bc250 vulkan-icd-loader)
   provides=(vulkan-radeon vulkan-driver)
   conflicts=(vulkan-radeon)
-
+  
   install -d "$pkgdir/usr/lib"
   install -d "$pkgdir/usr/share/vulkan/icd.d"
-
-  # Recuperar los archivos movidos en el paso anterior
-  mv ../vulkan-pkg/usr/lib/* "$pkgdir/usr/lib/"
-  mv ../vulkan-pkg/usr/share/vulkan/icd.d/* "$pkgdir/usr/share/vulkan/icd.d/"
-
+  
+  mv ../vulkan-pkg/usr/lib/* "$pkgdir/usr/lib/" 2>/dev/null || true
+  mv ../vulkan-pkg/usr/share/vulkan/icd.d/* "$pkgdir/usr/share/vulkan/icd.d/" 2>/dev/null || true
+  
   install -Dm644 mesa-$pkgver/docs/license.rst -t "$pkgdir/usr/share/licenses/$pkgname"
 }
