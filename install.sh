@@ -9,17 +9,18 @@
 RELEASE_URL="https://github.com/eabarriosTGC/BC250--ARCH/releases/download/v1.0"
 
     
-# Nombres exactos de los archivos (Usando %3A en lugar de : para compatibilidad con GitHub)
+# Usamos la v1.1 donde los archivos tienen nombres seguros
+RELEASE_URL="https://github.com/eabarriosTGC/BC250--ARCH/releases/download/v1.1"
+
+# Nombres exactos (Renombrados: '1:' cambiado por '1.' para evitar errores URL)
 KERNEL_PKG="linux-lts-amd-bc250-6.6.66-9-x86_64.pkg.tar.zst"
 KERNEL_HDR="linux-lts-amd-bc250-headers-6.6.66-9-x86_64.pkg.tar.zst"
 
-# AQUÍ ESTÁ EL CAMBIO: Usamos 1%3A en lugar de 1:
-MESA_PKG="mesa-amd-bc250-1%3A24.3.1-8-x86_64.pkg.tar.zst"
-VULKAN_PKG="vulkan-radeon-amd-bc250-1%3A24.3.1-8-x86_64.pkg.tar.zst"
-LIB32_MESA_PKG="lib32-mesa-amd-bc250-1%3A24.3.1-1-x86_64.pkg.tar.zst"
-LIB32_VULKAN_PKG="lib32-vulkan-radeon-amd-bc250-1%3A24.3.1-1-x86_64.pkg.tar.zst"
+MESA_PKG="mesa-amd-bc250-1.24.3.1-8-x86_64.pkg.tar.zst"
+VULKAN_PKG="vulkan-radeon-amd-bc250-1.24.3.1-8-x86_64.pkg.tar.zst"
 
-  
+LIB32_MESA_PKG="lib32-mesa-amd-bc250-1.24.3.1-1-x86_64.pkg.tar.zst"
+LIB32_VULKAN_PKG="lib32-vulkan-radeon-amd-bc250-1.24.3.1-1-x86_64.pkg.tar.zst"
 # =================================================================================
 
 # Colores
