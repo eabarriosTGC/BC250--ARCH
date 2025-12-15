@@ -1,76 +1,41 @@
-# AMD BC-250 Ultimate Setup para Arch Linux & Manjaro
+# 🚀 AMD BC-250 (Cyan Skillfish): Ultimate Arch Linux Setup
 
-> **Estado:** Activo y Actualizado (Diciembre 2025)  
-> **Soporta:** Arch Linux, Manjaro, EndeavourOS.
+> **Estado:** ✅ Estable / Probado en Diciembre 2025  
+> **Soporte:** Arch Linux, Manjaro, EndeavourOS (Kernel 6.6 LTS + Mesa 24.3)  
+> **Características:** Instalador Automático, Soporte Binario (Releases), Fixes para GCC 15/LLVM 21.
 
-Script automatizado para compilar e instalar un entorno estable para la placa **AMD BC-250 (Cyan Skillfish)**, solucionando los problemas de pantalla negra, congelamientos y falta de aceleración gráfica en kernels recientes.
-
----
-
-## 🛑 El Problema (¿Por qué existe este repo?)
-
-Si has intentado usar Arch Linux recientemente en la BC-250, habrás notado:
-1.  **Pantalla negra al arrancar:** Los kernels recientes (6.12+, 6.17+) tienen regresiones en el módulo `amdgpu` para este hardware exótico.
-2.  **Sin aceleración:** `glxinfo` muestra `llvmpipe` en lugar de la GPU RDNA2.
-3.  **Crash en actualizaciones:** Un `pacman -Syu` puede romper el sistema inesperadamente.
-
-Los métodos antiguos (habilitar repos `testing` o esperar a Mesa upstream) **ya no son seguros** debido a la inestabilidad del soporte "bleeding edge" para esta placa minera convertida.
-
-## 🧠 La Solución Técnica
-
-A diferencia de otros scripts que confían en repositorios externos o versiones inestables, este repositorio adopta un enfoque de **"Estabilidad Congelada"**:
-
-1.  **Kernel LTS Custom:** Compilamos una versión parcheada del Kernel LTS (6.6.x) específicamente configurada para inicializar correctamente el `amdgpu` de la Cyan Skillfish.
-2.  **Mesa Parcheado:** Compilamos la última versión estable de Mesa (24.3.x) con el parche `navi10-range` aplicado, asegurando soporte Vulkan y OpenGL completo.
-3.  **Governor Fix:** Instalamos un servicio systemd nativo que fuerza el perfil de energía correcto al inicio, evitando el bajo rendimiento o crashes por gestión de energía.
-4.  **Protección contra Updates:** El script ofrece bloquear estos paquetes en `pacman.conf` para que Arch pueda actualizarse sin romper tus drivers gráficos.
+Este repositorio contiene la solución definitiva para estabilizar la placa **AMD BC-250** (una APU de PS5 reutilizada) en Arch Linux. Soluciona problemas de pantalla negra, falta de aceleración, errores de compilación modernos y cuelgues de GPU (Green Screen).
 
 ---
 
-## 🚀 Instalación
-
-### Requisitos Previos
-*   Una instalación limpia (o funcional) de Arch Linux o Manjaro.
-*   Conexión a internet.
-*   **Paciencia:** Compilar el Kernel y Mesa puede tardar entre **40 minutos y 2 horas** dependiendo de tu CPU, pero es un proceso único que garantiza estabilidad.
-
-### Pasos
-
-1.  **Instalar Git:**
-    ```bash
-    sudo pacman -S git base-devel
-    ```
-
-2.  **Clonar el repositorio:**
-    ```bash
-    git clone https://github.com/eabarriosTGC/BC250--ARCH.git
-    cd BC250--ARCH
-    ```
-
-3.  **Dar permisos y ejecutar:**
-    ```bash
-    chmod +x install.sh
-    ./install.sh
-    ```
-
-4.  **Seguir las instrucciones en pantalla:**
-    *   Se recomienda decir **SÍ (y)** a todas las opciones (Kernel, Mesa y Bloqueo de paquetes).
-
-5.  **Reiniciar:**
-    *   Al reiniciar, asegúrate de seleccionar **"Linux LTS AMD BC-250"** en el menú de GRUB/Systemd-boot.
+## ⚡ Novedad: Instalación Rápida (Fast Track)
+¡Ya no necesitas esperar 2 horas compilando! Este script ahora te permite **descargar e instalar automáticamente** los paquetes pre-compilados y optimizados desde [GitHub Releases](https://github.com/eabarriosTGC/BC250--ARCH/releases).
 
 ---
 
-## 📊 Verificación
+## 🛑 El Problema
+Si intentas usar esta placa en un Arch Linux actualizado (2024/2025), te encontrarás con:
+1.  **Pantalla Negra:** Los Kernels 6.12+ y 6.17+ tienen regresiones con el hardware Cyan Skillfish.
+2.  **Errores de Compilación:** El Kernel 6.6 LTS falla al compilar con **GCC 15 (C23 Standard)** debido a conflictos con palabras reservadas (`bool`, `true`).
+3.  **Mesa Roto:** Mesa 24.x falla al compilar con **LLVM 21** debido a cambios en la API y módulos OpenCL incompatibles.
+4.  **Green Screen of Death:** Cuelgues del sistema al ejecutar cargas pesadas (FurMark, Juegos) por frecuencias inestables (>2000MHz).
 
-Una vez reiniciado, ejecuta estos comandos para verificar que todo funciona:
+## 🛠️ La Solución Técnica
+Este repositorio automatiza la corrección de todo lo anterior:
+
+*   **Kernel LTS (6.6.66+) Custom:** Parcheado con "PATH Hijacking" para forzar el estándar `gnu11` en GCC 15, permitiendo una compilación exitosa.
+*   **Mesa 24.3 (64 & 32 bits):** Drivers gráficos purgados de módulos OpenCL/Rusticl (rotos en LLVM 21) y parcheados para reconocer la BC-250.
+*   **Performance Governor:** Implementación en Rust (por *Magnap*) configurada con un perfil de seguridad (1800MHz) para evitar pantallazos verdes.
+*   **Protección:** Bloqueo automático de actualizaciones en `pacman.conf` para evitar roturas futuras.
+
+---
+
+## 🚀 Guía de Instalación
+
+### 1. Clonar el repositorio
+Abre una terminal y ejecuta:
 
 ```bash
-# Debe mostrar kernel 6.6.x-bc250
-uname -r 
-
-# Debe mostrar "AMD Radeon Graphics" o "Cyan Skillfish" (NO llvmpipe)
-glxinfo | grep "OpenGL renderer"
-
-# Debe mostrar tu GPU correctamente
-vulkaninfo | grep deviceName
+sudo pacman -S git base-devel
+git clone https://github.com/eabarriosTGC/BC250--ARCH.git
+cd BC250--ARCH
