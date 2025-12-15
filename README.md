@@ -65,10 +65,10 @@ chmod +x install.sh
 Responde Sí (s) a todo (Kernel, Mesa, Lib32, Governor).
 ⚠️ Pasos Post-Instalación
 
-Al terminar, REINICIA tu equipo. Si notas problemas:
-A. Verificar Parámetros de Arranque (GRUB)
+#Al terminar, REINICIA tu equipo. Si notas problemas:
+#A. Verificar Parámetros de Arranque (GRUB)
 
-Si los ventiladores no se controlan o el rendimiento es muy bajo, verifica que GRUB cargó el parámetro:
+# Si los ventiladores no se controlan o el rendimiento es muy bajo, verifica que GRUB cargó el parámetro:
 
     sudo nano /etc/default/grub -> Busca: GRUB_CMDLINE_LINUX_DEFAULT="... amdgpu.ppfeaturemask=0xffffffff"
 
@@ -94,9 +94,9 @@ sudo cp pkgs/lib32-mesa-bc250/src/build/src/amd/vulkan/libvulkan_radeon.so /usr/
 
   
 
-🎮 Rendimiento y Advertencias
+#🎮 Rendimiento y Advertencias
 
-El Governor incluido viene configurado a 2000 MHz.
+#El Governor incluido viene configurado a 2000 MHz.
 
     ✅ Juegos (Real World): Probado en juegos exigentes como Resident Evil 4 Remake, funcionando fluido y estable a 2000MHz.
 
