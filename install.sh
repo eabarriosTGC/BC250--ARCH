@@ -6,11 +6,9 @@
 # =================================================================================
 
 # --- CONFIGURACIÓN DE DESCARGA ---
-# URL base de tu Release v1.0
 RELEASE_URL="https://github.com/eabarriosTGC/BC250--ARCH/releases/download/v1.0"
 
-# Nombres exactos de los archivos (Basados en tu compilación exitosa)
-# NOTA: Si en el futuro actualizas versiones, cambia esto.
+# Nombres de archivos
 KERNEL_PKG="linux-lts-amd-bc250-6.6.66-9-x86_64.pkg.tar.zst"
 KERNEL_HDR="linux-lts-amd-bc250-headers-6.6.66-9-x86_64.pkg.tar.zst"
 MESA_PKG="mesa-amd-bc250-24.3.1-8-x86_64.pkg.tar.zst"
@@ -42,21 +40,16 @@ install_binary() {
     local file="$2"
     
     echo -e "${YELLOW}Procesando $file...${NC}"
-    
-    # Verificar si ya existe localmente para no descargar doble
     if [ ! -f "$file" ]; then
         echo -e "${YELLOW}Descargando de GitHub...${NC}"
-        # Usamos curl con -L para seguir redirecciones de GitHub
         curl -L -O --progress-bar "$url/$file"
-        
         if [ $? -ne 0 ]; then
-            echo -e "${RED}Error descargando $file. Verifica tu internet o si el archivo existe en el Release.${NC}"
+            echo -e "${RED}Error descargando. Verifica internet.${NC}"
             return 1
         fi
     else
-        echo -e "${GREEN}Archivo local detectado. Saltando descarga.${NC}"
+        echo -e "${GREEN}Archivo local detectado.${NC}"
     fi
-    
     echo -e "${GREEN}Instalando...${NC}"
     sudo pacman -U --noconfirm "$file" --overwrite '*'
 }
@@ -72,8 +65,8 @@ build_source() {
 # --- 1. MODO DE INSTALACIÓN ---
 echo ""
 echo "Selecciona el modo de instalación:"
-echo -e "  1) ${GREEN}RÁPIDO${NC}: Descargar e instalar binarios pre-compilados (Recomendado)."
-echo -e "  2) ${YELLOW}LENTO${NC}: Compilar todo desde cero (Tarda 1-2 horas)."
+echo -e "  1) ${GREEN}RÁPIDO${NC}: Descargar binarios (Recomendado)."
+echo -e "  2) ${YELLOW}LENTO${NC}: Compilar desde cero (1-2 horas)."
 read -p "Opción (1/2): " install_mode
 
 # --- 2. DEPENDENCIAS ---
@@ -92,7 +85,6 @@ if [[ "$k_opt" =~ ^[Ss]$ ]]; then
         build_source "pkgs/linux-lts-bc250"
     fi
     
-    # Fix initramfs bug
     echo "Regenerando initramfs y GRUB..."
     sudo mkinitcpio -P
     sudo grub-mkconfig -o /boot/grub/grub.cfg
@@ -103,7 +95,6 @@ echo ""
 echo -e "${BLUE}--- MESA (DRIVERS 64-BIT) ---${NC}"
 read -p "¿Instalar Drivers Gráficos Parcheados? (s/n): " m_opt
 if [[ "$m_opt" =~ ^[Ss]$ ]]; then
-    # Limpieza previa
     sudo pacman -Rdd --noconfirm mesa vulkan-radeon vulkan-mesa-implicit-layers 2>/dev/null
 
     if [ "$install_mode" == "1" ]; then
@@ -113,18 +104,25 @@ if [[ "$m_opt" =~ ^[Ss]$ ]]; then
         build_source "pkgs/mesa-bc250"
     fi
     
-    # Fix manual de archivos (por si acaso)
-    if [ ! -f /usr/lib/libvulkan_radeon.so ]; then
-        echo "Aplicando fix de Vulkan 64-bit..."
-        # Buscar en local o en build
-        if [ -f "libvulkan_radeon.so" ]; then 
-             sudo cp libvulkan_radeon.so /usr/lib/
-        else
-             find pkgs/mesa-bc250 -name "libvulkan_radeon.so" -exec sudo cp {} /usr/lib/ \; -quit
-        fi
-        
-        echo '{"ICD":{"api_version":"1.3.296","library_path":"/usr/lib/libvulkan_radeon.so"},"file_format_version":"1.0.0"}' | sudo tee /usr/share/vulkan/icd.d/radeon_icd.x86_64.json >/dev/null
+    # --- FORCE FIX VULKAN 64-BIT (SI O SI) ---
+    echo "Asegurando configuración de Vulkan (64-bit)..."
+    
+    # 1. Si compilamos, copiamos el driver manualmente por seguridad
+    LIB_SRC=$(find pkgs/mesa-bc250 -name "libvulkan_radeon.so" 2>/dev/null | head -n 1)
+    if [ -f "$LIB_SRC" ]; then
+        echo "Copiando driver compilado a /usr/lib/..."
+        sudo cp "$LIB_SRC" /usr/lib/
     fi
+
+    # 2. Regenerar SIEMPRE el JSON para apuntar al lugar correcto
+    echo "Generando JSON correcto para Vulkan..."
+    echo '{
+    "ICD": {
+        "api_version": "1.3.296",
+        "library_path": "/usr/lib/libvulkan_radeon.so"
+    },
+    "file_format_version": "1.0.0"
+}' | sudo tee /usr/share/vulkan/icd.d/radeon_icd.x86_64.json >/dev/null
 fi
 
 # --- 5. LIB32 MESA ---
@@ -132,7 +130,6 @@ echo ""
 echo -e "${BLUE}--- MESA 32-BIT (STEAM/WINE) ---${NC}"
 read -p "¿Instalar librerías de 32 bits? (s/n): " m32_opt
 if [[ "$m32_opt" =~ ^[Ss]$ ]]; then
-    # Activar multilib si no está
     if ! grep -q "^\[multilib\]" /etc/pacman.conf; then
         echo "Activando repositorio multilib..."
         sudo sed -i "/\[multilib\]/,/Include/"'s/^#//' /etc/pacman.conf
@@ -148,12 +145,22 @@ if [[ "$m32_opt" =~ ^[Ss]$ ]]; then
         build_source "pkgs/lib32-mesa-bc250"
     fi
     
-    # Fix manual de archivos 32 bits
-    if [ ! -f /usr/lib32/libvulkan_radeon.so ]; then
-        echo "Aplicando fix de Vulkan 32-bit..."
-        find pkgs/lib32-mesa-bc250 -name "libvulkan_radeon.so" -exec sudo cp {} /usr/lib32/ \; -quit
-        echo '{"ICD":{"api_version":"1.3.296","library_path":"/usr/lib32/libvulkan_radeon.so"},"file_format_version":"1.0.0"}' | sudo tee /usr/share/vulkan/icd.d/radeon_icd.i686.json >/dev/null
+    # --- FORCE FIX VULKAN 32-BIT (SI O SI) ---
+    echo "Asegurando configuración de Vulkan (32-bit)..."
+    
+    LIB32_SRC=$(find pkgs/lib32-mesa-bc250 -name "libvulkan_radeon.so" 2>/dev/null | head -n 1)
+    if [ -f "$LIB32_SRC" ]; then
+        echo "Copiando driver compilado a /usr/lib32/..."
+        sudo cp "$LIB32_SRC" /usr/lib32/
     fi
+
+    echo '{
+    "ICD": {
+        "api_version": "1.3.296",
+        "library_path": "/usr/lib32/libvulkan_radeon.so"
+    },
+    "file_format_version": "1.0.0"
+}' | sudo tee /usr/share/vulkan/icd.d/radeon_icd.i686.json >/dev/null
 fi
 
 # --- 6. GOVERNOR ---
@@ -161,10 +168,8 @@ echo ""
 echo -e "${BLUE}--- GOVERNOR (RENDIMIENTO) ---${NC}"
 read -p "¿Instalar Governor en Rust? (s/n): " g_opt
 if [[ "$g_opt" =~ ^[Ss]$ ]]; then
-    # Limpieza
     sudo systemctl stop cyan-skillfish-governor 2>/dev/null
     
-    # Instalación
     rm -rf cyan-skillfish-governor
     git clone https://github.com/Magnap/cyan-skillfish-governor.git
     cd cyan-skillfish-governor || exit
@@ -173,7 +178,7 @@ if [[ "$g_opt" =~ ^[Ss]$ ]]; then
     cd ..
     rm -rf cyan-skillfish-governor
 
-    # Configuración Segura (1800MHz)
+    # Configuración Gaming (2000MHz)
     sudo mkdir -p /etc/cyan-skillfish-governor/
     echo '[load-target]
 upper = 0.95
@@ -185,10 +190,9 @@ mv = 750
 mhz = 1200
 mv = 850
 [[safe-points]]
-mhz = 1800
+mhz = 2000
 mv = 950' | sudo tee /etc/cyan-skillfish-governor/config.toml >/dev/null
 
-    # Servicio
     sudo tee /etc/systemd/system/cyan-skillfish-governor.service > /dev/null <<EOT
 [Unit]
 Description=Cyan Skillfish Governor
@@ -201,15 +205,12 @@ Restart=always
 WantedBy=multi-user.target
 EOT
     
-    # Kernel Param Fix
     if ! grep -q "amdgpu.ppfeaturemask" /etc/default/grub; then
         sudo sed -i 's/GRUB_CMDLINE_LINUX_DEFAULT="/&amdgpu.ppfeaturemask=0xffffffff /' /etc/default/grub
         sudo grub-mkconfig -o /boot/grub/grub.cfg
     fi
     
-    # Modprobe Fix
     echo "options amdgpu sg_display=0" | sudo tee /etc/modprobe.d/amdgpu.conf
-
     sudo systemctl daemon-reload
     sudo systemctl enable --now cyan-skillfish-governor.service
 fi
