@@ -1,3 +1,4 @@
+    
 # 🚀 AMD BC-250 (Cyan Skillfish): Ultimate Arch Linux Setup
 
 > **Estado:** ✅ Estable / Probado en Diciembre 2025  
@@ -39,3 +40,77 @@ Abre una terminal y ejecuta:
 sudo pacman -S git base-devel
 git clone https://github.com/eabarriosTGC/BC250--ARCH.git
 cd BC250--ARCH
+
+  
+
+2. Ejecutar el Asistente
+
+Da permisos de ejecución y lanza el script maestro. No uses sudo, el script te pedirá la contraseña cuando sea necesario.
+code Bash
+
+    
+chmod +x install.sh
+./install.sh
+
+  
+
+3. Seleccionar Modo
+
+    Opción 1 (RÁPIDO): Descarga e instala los binarios optimizados (5 minutos). Recomendado.
+
+    Opción 2 (LENTO): Compila todo desde cero en tu máquina (1-2 horas).
+
+4. Seguir los pasos
+
+Responde Sí (s) a todo (Kernel, Mesa, Lib32, Governor).
+⚠️ Pasos Post-Instalación
+
+Al terminar, REINICIA tu equipo. Si notas problemas:
+A. Verificar Parámetros de Arranque (GRUB)
+
+Si los ventiladores no se controlan o el rendimiento es muy bajo, verifica que GRUB cargó el parámetro:
+
+    sudo nano /etc/default/grub -> Busca: GRUB_CMDLINE_LINUX_DEFAULT="... amdgpu.ppfeaturemask=0xffffffff"
+
+    Actualiza: sudo grub-mkconfig -o /boot/grub/grub.cfg y reinicia.
+
+B. Verificar Drivers Vulkan
+
+Si Steam no abre, verifica que el driver sea detectado:
+code Bash
+
+    
+vulkaninfo | grep deviceName
+# Debe decir: AMD BC-250 (RADV NAVI10)
+
+  
+
+Si dice llvmpipe, copia los drivers manualmente:
+code Bash
+
+    
+sudo cp pkgs/mesa-bc250/src/build/src/amd/vulkan/libvulkan_radeon.so /usr/lib/
+sudo cp pkgs/lib32-mesa-bc250/src/build/src/amd/vulkan/libvulkan_radeon.so /usr/lib32/
+
+  
+
+🎮 Rendimiento y Advertencias
+
+El Governor incluido viene configurado a 2000 MHz.
+
+    ✅ Juegos (Real World): Probado en juegos exigentes como Resident Evil 4 Remake, funcionando fluido y estable a 2000MHz.
+
+    ⚠️ Stress Tests (FurMark/OCCT): NO RECOMENDADO. Herramientas como FurMark generan una carga de energía artificial excesiva que puede causar pantallas verdes (crash) a 2000MHz. Esto no refleja el uso real en juegos.
+
+Si experimentas inestabilidad:
+Puedes bajar la frecuencia editando el archivo de configuración:
+sudo nano /etc/cyan-skillfish-governor/config.toml (Cambia 2000 por 1800).
+📄 Créditos y Licencia
+
+    Automatización y Fixes GCC15/LLVM21: eabarriosTGC
+
+    Rust Governor: Magnap
+
+    Parches Originales: Comunidad BC-250.
+
+Licencia MIT.
