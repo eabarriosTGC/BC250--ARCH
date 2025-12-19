@@ -4,23 +4,21 @@
 #  AMD BC-250: ULTIMATE SETUP (FAST TRACK EDITION)
 #  Soporta: Instalación de binarios pre-compilados O compilación desde fuente.
 # =================================================================================
-
 # --- CONFIGURACIÓN DE DESCARGA ---
-RELEASE_URL="https://github.com/eabarriosTGC/BC250--ARCH/releases/download/v1.0"
+# URL actualizada a la versión v1.2
+RELEASE_URL="https://github.com/eabarriosTGC/BC250--ARCH/releases/download/v1.2"
 
-    
-# Usamos la v1.1 donde los archivos tienen nombres seguros
-RELEASE_URL="https://github.com/eabarriosTGC/BC250--ARCH/releases/download/v1.1"
-
-# Nombres exactos (Renombrados: '1:' cambiado por '1.' para evitar errores URL)
+# Nombres exactos (Basados en tu compilación final)
 KERNEL_PKG="linux-lts-amd-bc250-6.6.66-9-x86_64.pkg.tar.zst"
 KERNEL_HDR="linux-lts-amd-bc250-headers-6.6.66-9-x86_64.pkg.tar.zst"
 
-MESA_PKG="mesa-amd-bc250-1.24.3.1-8-x86_64.pkg.tar.zst"
-VULKAN_PKG="vulkan-radeon-amd-bc250-1.24.3.1-8-x86_64.pkg.tar.zst"
+# Mesa 64-bits (Versión -9)
+MESA_PKG="mesa-amd-bc250-1.24.3.1-9-x86_64.pkg.tar.zst"
+VULKAN_PKG="vulkan-radeon-amd-bc250-1.24.3.1-9-x86_64.pkg.tar.zst"
 
-LIB32_MESA_PKG="lib32-mesa-amd-bc250-1.24.3.1-1-x86_64.pkg.tar.zst"
-LIB32_VULKAN_PKG="lib32-vulkan-radeon-amd-bc250-1.24.3.1-1-x86_64.pkg.tar.zst"
+# Mesa 32-bits (Versión -2)
+LIB32_MESA_PKG="lib32-mesa-amd-bc250-1.24.3.1-2-x86_64.pkg.tar.zst"
+LIB32_VULKAN_PKG="lib32-vulkan-radeon-amd-bc250-1.24.3.1-2-x86_64.pkg.tar.zst"
 # =================================================================================
 
 # Colores
